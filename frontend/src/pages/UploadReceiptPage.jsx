@@ -60,6 +60,7 @@ export default function UploadReceiptPage() {
       fd.append('image', file);
       const { data } = await api.post('/receipts/upload', fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 300000,
       });
       applyResult(data.data);
 
@@ -103,7 +104,7 @@ export default function UploadReceiptPage() {
             <img src={preview} alt="Receipt preview" className="mt-4 max-h-80 w-full rounded-xl object-contain" />
           )}
           <Button className="mt-4" type="button" onClick={analyze} disabled={busy || !file}>
-            {busy ? 'Reading image…' : 'Read from image'}
+            {busy ? 'Reading image (may take 1–2 min)…' : 'Read from image'}
           </Button>
         </Card>
 

@@ -41,6 +41,7 @@ export async function uploadAndAnalyze(req, res) {
   if (!req.file) {
     throw new AppError('Image file is required (field name: image)');
   }
+  console.log(`[receipt] upload start user=${req.userId} size=${req.file.size} type=${req.file.mimetype}`);
   const buffer = req.file.buffer;
   const mimeType = req.file.mimetype;
   const fileHash = sha256Buffer(buffer);
@@ -52,7 +53,9 @@ export async function uploadAndAnalyze(req, res) {
   try {
     const base64 = buffer.toString('base64');
     ai = await extractFromReceiptImage({ buffer, base64, mimeType });
+    console.log(`[receipt] extracted via ${ai.extractionMethod} total=${ai.totalAmount}`);
   } catch (e) {
+    console.error('[receipt] extraction failed:', e.message);
     throw new AppError(e.message || 'Could not read receipt from image', 422);
   }
 

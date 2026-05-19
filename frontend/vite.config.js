@@ -9,6 +9,9 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:5000',
         changeOrigin: true,
+        // Receipt OCR can take 1–2 minutes on first run
+        timeout: 300000,
+        proxyTimeout: 300000,
       },
     },
   },
