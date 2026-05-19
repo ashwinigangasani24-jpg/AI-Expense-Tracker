@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Sample payloads for AI Expense Tracker API",
+  "examples": {
+    "register": {
+      "name": "Alex Rivera",
+      "email": "alex@example.com",
+      "password": "securepass1"
+    },
+    "login": {
+      "email": "alex@example.com",
+      "password": "securepass1"
+    },
+    "expense_manual": {
+      "amount": 128.4,
+      "category": "Shopping",
+      "description": "Household supplies",
+      "date": "2026-05-10",
+      "paymentMethod": "UPI",
+      "shopName": "BigMart",
+      "gstOrTax": 6.2,
+      "items": [
+        { "name": "Detergent", "quantity": 1, "unitPrice": 12, "lineTotal": 12 },
+        { "name": "Towels", "quantity": 2, "unitPrice": 58.1, "lineTotal": 116.2 }
+      ],
+      "source": "manual"
+    },
+    "expense_from_receipt": {
+      "amount": 54.99,
+      "category": "Food",
+      "description": "Grocery run — AI import",
+      "date": "2026-05-12",
+      "paymentMethod": "Card",
+      "shopName": "Fresh Foods Co",
+      "gstOrTax": 2.1,
+      "items": [{ "name": "Mixed basket", "quantity": 1, "unitPrice": 52.89, "lineTotal": 52.89 }],
+      "source": "receipt",
+      "receipt": "REPLACE_WITH_RECEIPT_OBJECT_ID"
+    },
+    "profile_patch": {
+      "name": "Alex Rivera",
+      "currency": "INR",
+      "avatarUrl": "https://example.com/avatar.png"
+    }
+  },
+  "notes": [
+    "Categories must be one of: Food, Transport, Shopping, Bills, Entertainment, Health, Travel, Education, Other.",
+    "Receipt upload uses multipart field name: image",
+    "JWT is returned from /auth/login and /auth/register; send as Authorization: Bearer <token>"
+  ]
+}
