@@ -1,0 +1,26 @@
+# Deploy backend API on Render: https://render.com
+# Frontend stays on Vercel; set VITE_API_URL to this service URL + /api
+
+services:
+  - type: web
+    name: ai-expense-tracker-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    plan: free
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: AI_PROVIDER
+        value: gemini
+      - key: CLIENT_URL
+        sync: false
+      - key: ENABLE_AI_DEMO_FALLBACK
+        value: "false"
