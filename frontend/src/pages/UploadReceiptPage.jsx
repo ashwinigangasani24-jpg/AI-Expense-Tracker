@@ -64,8 +64,8 @@ export default function UploadReceiptPage() {
       });
       applyResult(data.data);
 
-      if (data.data.isDuplicate) {
-        toast('Possible duplicate receipt detected.', { icon: '⚠️' });
+      if (data.data.alreadySavedAsExpense || data.data.isDuplicate) {
+        toast('This receipt is already saved as an expense.', { icon: '⚠️', duration: 5000 });
       } else {
         toast.success('Receipt read from your image');
       }
@@ -114,6 +114,13 @@ export default function UploadReceiptPage() {
           )}
           {result?.extracted && (
             <div className="space-y-3 text-sm">
+              {(result.alreadySavedAsExpense || result.isDuplicate) && (
+                <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-amber-950 dark:border-amber-700 dark:bg-amber-950/50 dark:text-amber-100">
+                  <p className="text-xs font-medium">
+                    This exact receipt image was already saved as an expense. You can view it in Expenses.
+                  </p>
+                </div>
+              )}
               {result.extractionMethod && (
                 <span className="inline-block rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-800 dark:bg-brand-900/40 dark:text-brand-100">
                   {METHOD_LABEL[result.extractionMethod] || result.extractionMethod}
@@ -141,7 +148,9 @@ export default function UploadReceiptPage() {
                 <KV k="Tax" v={formatMoney(result.extracted.gstOrTax, currency)} />
                 <KV k="Pay with" v={result.extracted.paymentMethod || '—'} />
                 <KV k="Category" v={result.extracted.categoryGuess || '—'} />
-                <KV k="Duplicate?" v={result.isDuplicate ? 'Yes' : 'No'} />
+                {(result.alreadySavedAsExpense || result.isDuplicate) && (
+                  <KV k="Status" v="Already in ledger" />
+                )}
               </div>
               <div>
                 <div className="text-xs font-semibold uppercase text-slate-500">Summary</div>
@@ -152,7 +161,7 @@ export default function UploadReceiptPage() {
         </Card>
       </div>
 
-      {result?.extracted && (
+      {result?.extracted && !(result.alreadySavedAsExpense || result.isDuplicate) && (
         <Card title="Confirm & save (filled from image)">
           <ExpenseForm
             initial={formInitial}

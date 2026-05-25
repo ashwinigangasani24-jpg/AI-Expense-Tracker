@@ -9,3 +9,4 @@ uploads/
 coverage/
 .vscode/*
 !.vscode/extensions.json
+.vercel
