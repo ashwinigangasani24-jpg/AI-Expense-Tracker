@@ -450,14 +450,15 @@ async function fallbackHandler(req, res) {
       return send(res, 400, { success: false, message: 'Image file is required' });
     }
     try {
-      const text = await extractTextFromImage(file.buffer);
-      const ai = parseReceiptOcrText(text);
-      if (ai.totalAmount > 0) {
-        return send(res, 200, receiptUploadResponse({ ...ai, extractionMethod: 'image-ocr' }));
-      }
-      console.warn('Fallback OCR did not find a total, trying Gemini vision.');
+      // Skipped OCR to prevent Vercel timeouts
+      // const text = await extractTextFromImage(file.buffer);
+      // const ai = parseReceiptOcrText(text);
+      // if (ai.totalAmount > 0) {
+      //   return send(res, 200, receiptUploadResponse({ ...ai, extractionMethod: 'image-ocr' }));
+      // }
+      console.warn('Skipping OCR in fallback, trying Gemini vision directly.');
     } catch (err) {
-      console.warn('Fallback OCR failed, trying Gemini vision:', err?.message || err);
+      console.warn('Fallback OCR skipped:', err?.message || err);
     }
     try {
       const ai = await analyzeReceiptWithGeminiRest({
