@@ -241,7 +241,12 @@ function getUserFromToken(req) {
   try {
     const decoded = verifyToken(token);
     const store = demoStore();
-    return [...store.users.values()].find((user) => user.id === String(decoded.sub)) || null;
+    let user = [...store.users.values()].find((user) => user.id === String(decoded.sub));
+    if (!user) {
+      user = { id: String(decoded.sub), name: 'Live User', email: 'user@example.com', currency: 'INR' };
+      store.users.set(user.email, user);
+    }
+    return user;
   } catch {
     return null;
   }

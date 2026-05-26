@@ -49,10 +49,8 @@ export function AuthProvider({ children }) {
         setUser(data.user);
       },
       async register(payload) {
-        const { data } = await api.post('/auth/register', payload);
-        setAuthToken(data.token);
-        setToken(data.token);
-        setUser(data.user);
+        await api.post('/auth/register', payload);
+        // User must manually log in after registration
       },
       logout() {
         setAuthToken(null);

@@ -18,8 +18,8 @@ export default function RegisterPage() {
     setBusy(true);
     try {
       await register({ name, email, password });
-      toast.success('Account created');
-      nav('/');
+      toast.success('Account created! Please log in.');
+      nav('/login');
     } catch (err) {
       toast.error(err.message);
     } finally {
