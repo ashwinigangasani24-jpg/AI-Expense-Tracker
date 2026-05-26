@@ -190,7 +190,7 @@ function parseJsonText(text) {
 }
 
 async function analyzeReceiptWithGeminiRest({ base64, mimeType }) {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyBj9RIEYbF9ySeLrPGC_e3FyHtmHabdUs4';
   if (!apiKey) throw new Error('GEMINI_API_KEY is not configured');
   const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
   const prompt = `Read this receipt image and return ONLY valid JSON with this exact shape:
@@ -473,11 +473,8 @@ async function fallbackHandler(req, res) {
       return send(res, 200, receiptUploadResponse({ ...ai, extractionMethod: 'ai-vision' }));
     } catch (err) {
       console.error('Fallback receipt extraction failed:', err);
-      const message = err?.message || '';
-      if (/quota|rate|limit|429|403/i.test(message)) {
-        return send(res, 200, demoReceiptExtraction('AI quota is unavailable, so the demo parser used the visible receipt template.'));
-      }
-      return send(res, 200, demoReceiptExtraction('Image OCR/AI was unavailable, so the demo parser used the visible receipt template.'));
+      const message = err?.message || 'Failed to read receipt. Please upload a smaller or clearer image.';
+      return send(res, 422, { success: false, message });
     }
   }
 
