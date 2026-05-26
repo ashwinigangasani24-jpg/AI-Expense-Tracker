@@ -7,7 +7,7 @@ import { formatDate, formatMoney, toInputDate } from '../utils/format.js';
 import { getUserCurrency } from '../utils/currency.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { exportExpensesPdf } from '../utils/exportPdf.js';
-import { exportExpensesExcel } from '../utils/exportExcel.js';
+import { exportExpensesCsv } from '../utils/exportExcel.js';
 
 export default function ExpenseHistoryPage() {
   const { user } = useAuth();
@@ -69,8 +69,8 @@ export default function ExpenseHistoryPage() {
           <Button type="button" variant="outline" onClick={() => exportExpensesPdf(items, currency)}>
             Export PDF
           </Button>
-          <Button type="button" variant="outline" onClick={() => exportExpensesExcel(items)}>
-            Export Excel
+          <Button type="button" variant="outline" onClick={() => exportExpensesCsv(items)}>
+            Export CSV
           </Button>
         </div>
       </div>

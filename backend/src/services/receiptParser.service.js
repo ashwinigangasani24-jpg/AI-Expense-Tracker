@@ -5,6 +5,28 @@ function parseAmount(raw) {
 }
 
 function findGrandTotal(text) {
+  const labelled = [];
+  const lines = text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    if (!/\btotal\b/i.test(line) || /sub\s*total|subtotal|this month|all time/i.test(line)) continue;
+    const amounts = [...line.matchAll(/(?:INR|Rs\.?|₹|â‚¹|€|£|\$)?\s*([0-9]{1,3}(?:,[0-9]{2,3})*(?:\.[0-9]{1,2})?|[0-9]+(?:\.[0-9]{1,2})?)/gi)]
+      .map((m) => parseAmount(m[1]))
+      .filter((n) => n > 0 && n < 5_000_000);
+    for (const amount of amounts) {
+      labelled.push({ amount, line: i });
+    }
+  }
+
+  if (labelled.length) {
+    labelled.sort((a, b) => b.line - a.line || b.amount - a.amount);
+    return labelled[0].amount;
+  }
+
   const patterns = [
     /grand\s*total[^\d]{0,40}?(?:INR|Rs\.?|₹)?\s*([\d,]+\.?\d*)/gi,
     /total\s*(?:amount|payable)?[^\d]{0,30}?(?:INR|Rs\.?|₹)?\s*([\d,]+\.?\d*)/gi,
@@ -38,11 +60,30 @@ function findGrandTotal(text) {
 }
 
 function findGstTotal(text) {
+  const subtotalMatch = text.match(/sub\s*total[^\d]*([0-9]{1,3}(?:,[0-9]{2,3})*(?:\.[0-9]{1,2})?|[0-9]+(?:\.[0-9]{1,2})?)/i);
+  const subtotal = subtotalMatch ? parseAmount(subtotalMatch[1]) : 0;
   let sum = 0;
-  const taxRe = /(?:CGST|SGST|IGST|GST)[^%\d]*(?:@)?\s*[\d.]+%?\s*[^\d]*([\d,]+\.?\d*)/gi;
-  let m;
-  while ((m = taxRe.exec(text)) !== null) {
-    sum += parseAmount(m[1]);
+  const taxLines = text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => /\b(?:C\s*G\s*S\s*T|S\s*G\s*S\s*T|I\s*G\s*S\s*T|CGST|SGST|IGST|GST|CST|CESS)\b/i.test(line));
+  for (const line of taxLines) {
+    const percent = parseAmount(line.match(/([0-9]+(?:\.[0-9]+)?)\s*%/)?.[1]);
+    if (subtotal > 0 && subtotal < 10_000 && percent > 0) {
+      sum += (subtotal * percent) / 100;
+      continue;
+    }
+    const amounts = [...line.matchAll(/([0-9]{1,3}(?:,[0-9]{2,3})*(?:\.[0-9]{1,2})?|[0-9]+(?:\.[0-9]{1,2})?)/g)]
+      .map((m) => {
+        const raw = m[1];
+        const amount = parseAmount(raw);
+        if (percent > 0 && percent <= 5 && amount > 300 && /^3\d{2}\.\d{1,2}$/.test(raw)) {
+          return parseAmount(raw.slice(1));
+        }
+        return amount;
+      })
+      .filter((n) => n > 0 && n < 1_000_000);
+    if (amounts.length) sum += amounts[amounts.length - 1];
   }
   return sum;
 }
@@ -61,6 +102,7 @@ function findDate(text) {
 function guessShop(text, lines) {
   const lower = text.toLowerCase();
   const brands = [
+    ['cedarstay', 'Cedarstay Hotels'],
     ['goibibo', 'goibibo'],
     ['paytm', 'Paytm'],
     ['makemytrip', 'MakeMyTrip'],
