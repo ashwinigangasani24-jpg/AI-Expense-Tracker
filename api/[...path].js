@@ -190,10 +190,8 @@ function parseJsonText(text) {
 }
 
 async function analyzeReceiptWithGeminiRest({ base64, mimeType }) {
-  const p1 = 'AIzaSyDoETV1DV';
-  const p2 = 'RcdPTqqebgACT';
-  const p3 = 'Jwa09yPqQhDk';
-  const apiKey = process.env.GEMINI_API_KEY || (p1 + p2 + p3);
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error('GEMINI_API_KEY is not configured in Vercel Environment Variables');
   
   const prompt = `Read this receipt image and return ONLY valid JSON with this exact shape:
 {
